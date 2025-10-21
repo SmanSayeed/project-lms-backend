@@ -12,13 +12,13 @@ export class Course {
   id: number;
 
   @Column({ unique: true })
-  course_title: string;
+  courseTitle: string;
 
   @Column()
-  course_instructor: string;
+  courseInstructor: string;
 
   @Column({ unique: true })
-  course_link: string;
+  courseLink: string;
 
   @CreateDateColumn()
   createdAt: Date;
