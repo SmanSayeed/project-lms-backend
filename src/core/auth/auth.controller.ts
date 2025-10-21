@@ -4,6 +4,7 @@ import {
   Body,
   Request,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './providers/auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -12,13 +13,14 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { UserService } from '../users/providers/user.service';
 import { ApiResponse } from 'src/common/utils/api-response';
 import { LoginDto } from './dto/login.dto';
+import { SessionAuthGuard } from './guards/session-auth.guard';
 
 @Public()
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private usersService: UserService,
+    private userService: UserService,
   ) { }
 
   @Post('register')
@@ -26,7 +28,7 @@ export class AuthController {
     @Body() createUserDto: CreateUserDto,
   ): Promise<ApiResponse<any>> {
     const result = await this.authService.signup(createUserDto);
-    return new ApiResponse('Succesfully Registered', result);
+    return new ApiResponse('Successfully Registered', result);
   }
 
   @Post('login')
@@ -39,7 +41,14 @@ export class AuthController {
     console.log('body', body);
 
     const result = await this.authService.login(req.user);
-    return new ApiResponse('Succesfully Logged In', result);
+    return new ApiResponse('Successfully Logged In', result);
   }
 
+  @UseGuards(SessionAuthGuard)
+  @Get('session')
+  async getProfile(@Request() req): Promise<ApiResponse<any>> {
+    const result = await this.userService.getUserSession(req.user.sub);
+
+    return new ApiResponse('Successfully session created', result);
+  }
 }
