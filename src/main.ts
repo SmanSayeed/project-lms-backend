@@ -39,7 +39,7 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionsFilter());
   /* Add Swagger  */
   const options = new DocumentBuilder()
-    .setTitle('CodeMerit API')
+    .setTitle('lms API')
     .setDescription('Rest API Documentation')
     .setVersion('1.0')
     .addServer('http://localhost:3000/', 'Local environment')
