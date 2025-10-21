@@ -9,4 +9,10 @@ export class RegisterUserDto {
 
   @IsString()
   password: string;
+
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  mobile: string;
 }

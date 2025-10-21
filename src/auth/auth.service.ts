@@ -1,4 +1,3 @@
-import { UserService } from './../user/user.service';
 import {
   ConflictException,
   Injectable,
@@ -9,16 +8,17 @@ import { RegisterUserDto } from './dto/register.user.dto';
 import bcrypt from 'bcryptjs';
 import { LoginUserDto } from './dto/login.user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from 'src/core/users/providers/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async register(registerUserDto: RegisterUserDto) {
-    const userExists = await this.userService.findUser(registerUserDto.email);
+    const userExists = await this.userService.findByEmail(registerUserDto.email);
     if (userExists) {
       throw new ConflictException('Email is already taken');
     }
@@ -28,9 +28,9 @@ export class AuthService {
 
     // 3️⃣ Create user using UserService
     try {
-      await this.userService.createUser({
+      await this.userService.create({
         ...registerUserDto,
-        password: hashedPassword,
+        password: hashedPassword
       });
 
       return {
@@ -43,7 +43,7 @@ export class AuthService {
   }
 
   async login(loginUserDto: LoginUserDto) {
-    const userExists = await this.userService.findUser(loginUserDto.email);
+    const userExists = await this.userService.findByEmail(loginUserDto.email);
     if (!userExists) {
       throw new ConflictException(
         'Email is not registerd. Please register your email',

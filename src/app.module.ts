@@ -1,30 +1,41 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { CourseModule } from './course/course.module';
+import { DatabaseModule } from './common/database/database.module';
+import { LoggerModule } from './common/services/logger.module';
+import { CoreModule } from './core/core.module';
+import { DomainModule } from './modules/domain.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './core/auth/jwt/jwt-auth-guard';
+import { RolesGuard } from './core/auth/guards/roles.guard';
+import { appConfig } from './config/app-config';
+import { databaseConfig } from './config/database-config';
+import { jwtConfig } from './config/jwt-config';
 
 @Module({
   imports: [
-    AuthModule,
-    UserModule,
-    ConfigModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '12345',
-      database: 'LMS_SITE',
-      autoLoadEntities: true,
-      // synchronize: true,
+    CoreModule,
+    ConfigModule.forRoot({
+      load: [appConfig, databaseConfig, jwtConfig],
+      isGlobal: true,
     }),
-    CourseModule,
+    LoggerModule,
+    DatabaseModule,
+    DomainModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {
+    console.log('AppModule initialized');
+    console.log('##### Env.DB_HOST:', process.env.DB_HOST)
+  }
+}
