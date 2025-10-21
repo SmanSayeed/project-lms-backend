@@ -116,4 +116,11 @@ export class UserService {
       throw new AppCustomException(HttpStatus.BAD_REQUEST, 'User not found');
     }
   }
+
+  async getUserSession(id: number) {
+    return this.userRepo.findOne({
+      where: { id },
+      select: { id: true, email: true, firstName: true, lastName: true },
+    });
+  }
 }
